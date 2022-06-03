@@ -1,0 +1,31 @@
+---
+# tasks file for ansible-role-phpmyadmin
+- name: Install PHP, PHPMyAdmin and PHP-FPM
+  yum:
+    name: php, phpMyAdmin, php-fpm
+    state: latest
+    update_cache: true
+- name: edit database server host
+  replace:
+    path: /etc/phpMyAdmin/config.inc.php
+    regexp: "^\\$cfg\\[\\'Servers\\'\\]\\[\\$i\\]\\[\\'host\\'\\]          = \\'(.*)\\'\\;(.*)$"
+    replace: "$cfg['Servers'][$i]['host']          = 'agent-0';"
+  notify: restart php-fpm
+- name: edit database server port
+  replace:
+    path: /etc/phpMyAdmin/config.inc.php
+    regexp: "^\\$cfg\\[\\'Servers\\'\\]\\[\\$i\\]\\[\\'port\\'\\]          = \\'(.*)\\'\\;(.*)$"
+    replace: "$cfg['Servers'][$i]['port']          = '3306';"
+  notify: restart php-fpm
+- name: edit database server user
+  replace:
+    path: /etc/phpMyAdmin/config.inc.php
+    regexp: "^\\$cfg\\[\\'Servers\\'\\]\\[\\$i\\]\\[\\'user\\'\\]          = \\'(.*)\\'\\;(.*)$"
+    replace: "$cfg['Servers'][$i]['user']          = '{{ mysql_phpmyadmin_username }}';"
+  notify: restart php-fpm
+- name: edit database server password
+  replace:
+    path: /etc/phpMyAdmin/config.inc.php
+    regexp: "^\\$cfg\\[\\'Servers\\'\\]\\[\\$i\\]\\[\\'password\\'\\]      = \\'(.*)\\'\\;(.*)$"
+    replace: "$cfg['Servers'][$i]['password']      = '{{ mysql_phpmyadmin_password }}';"
+  notify: restart php-fpm
